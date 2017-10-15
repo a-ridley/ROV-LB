@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import smbus
+import time
 
 registers = {'SERVO_1': 0x00,
              'ELEVATOR_THRUSTER': 0x10,
@@ -12,7 +13,7 @@ class Arduino():
         self.bus = smbus.SMBus(bus_num)  # 1 if Pi Zero or 3, 0 if Pi 2 or 1
         self.address = address
 
-    def send(self, message, register=0x00, verify=True):
+    def send(self, message, register=0x00, verify=False):
         '''Send message to Arduino.'''
         self.bus.write_i2c_block_data(self.address, register,
                                       [ord(char) for char in message])
@@ -21,6 +22,7 @@ class Arduino():
             print(('Register: {:#04x}\nMessage: {}\nResponse: {}'
                    ).format(register, message, return_message))
             return return_message
+        time.sleep(0.01)
 
     def recv(self):
         message_bytes = self.bus.read_i2c_block_data(self.address, 0x00)
